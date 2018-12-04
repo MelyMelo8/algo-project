@@ -42,3 +42,14 @@ function getNextLetter(letters): char
         for j de 1 à Round(int(probas[i])*1.5):
             liste[k] = alphabet[i]
     Return liste[Random(total)]
+
+Procedure addWord(word):
+    tableau = lireTableau()
+    i,j,k = 0
+    word = "ø"+word+"ø"
+    for i de 1 à len(word)-1:
+        while tableau[j][0]<>word[i,i+1]: (* on cherche la ligne *)
+            j = j+1
+        while tableau[0][k]<>word[i+1]: (* puis la colonne *)
+            k = k+1
+        tableau[j][k] = tableau[j][k]+1
