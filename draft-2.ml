@@ -6,17 +6,18 @@ USES cwstring, crt;
 CONST alphabet : WideString = "abcdefghijklmnopqrstuvwxyzàâéèêëîïôùûüÿæœç-"
 
 
-function lireTableau(): array of array
+function readTable(): array of array
     fic = fichier
     k = 0
     l = 0
     data = array[0..45]
-    for i de 0 à len(fic):
+    for i de 1 à len(fic):
         line = array[0..45]
-        for j de 0 à len(fic[i]):
+        case = ""
+        for j de 1 à len(fic[i]):
             if fic[i][j]<>';':
                 case = case+fic[i][j]
-            else if:
+            else:
                 line[k] = case
                 case = ""
                 k = k+1
@@ -26,8 +27,8 @@ function lireTableau(): array of array
 
 function searchLine(letter): array
     tableau = lireTableau()
-    for i de 0 à len(tableau):
-        if tableau[i][0] = letter:
+    for i de 1 à len(tableau):
+        if tableau[i][1] = letter:
             Return tableau[i]
     Return None
 
@@ -35,14 +36,12 @@ function getNextLetter(letter):char
     randomize();
     probas = searchLine(letter)
     total = 0
-    for i de 1 à len(probas):
-        total += probas[i]
-    liste = array[0..total]
+    liste = array[1..??]
     k = 0
     for i de 1 à len(probas):
         for j de 1 à Round(int(probas[i])*1.5):
             liste[k] = alphabet[i]
-    result = liste[Eandom(total)]
+    Return liste[Random(total)]
 
 Procedure addWord(word):
     tableau = lireTableau
@@ -60,6 +59,16 @@ Procedure addWord(word):
     while tableau[0][i]<>word[len(word)]:
         i = i+1
     tableau[i][len(tableau[0])] = tableau[i][len(tableau[0])]+1
+
+Procedure addText(text):
+    temp = ""
+    for ch in text:
+        if ch in alphabet:
+            temp = temp+ch
+        else:
+            if len(temp)>0:
+                addWord(temp)
+                temp = ""
 
 function Begin():
     result = ""
