@@ -44,19 +44,19 @@ function getNextLetter(letter):char
     Return liste[Random(total)]
 
 Procedure addWord(word):
-    tableau = lireTableau
+    tableau = lireTableau()
     i,j,k = 0
     while tableau[0][i]<>word[i]:
         i = i+1
     tableau[1][i] = tableau[1][i]+1
-    for i de 0 à len(word)-2:
-        while tableau[j][0]<>word[i]:
+    for i de 1 à len(word)-2:
+        while tableau[j][0]<>word[i]: (* on cherche la ligne *)
             j = j+1
-        while tableau[0][k]<>word[i+1]:
+        while tableau[0][k]<>word[i+1]: (* puis la colonne *)
             k = k+1
         tableau[j][k] = tableau[j][k]+1
     i = 0
-    while tableau[0][i]<>word[len(word)]:
+    while tableau[i][0]<>word[len(word)]:
         i = i+1
     tableau[i][len(tableau[0])] = tableau[i][len(tableau[0])]+1
 
