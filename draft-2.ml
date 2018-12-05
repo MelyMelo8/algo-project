@@ -16,7 +16,7 @@ function readTable(): array of array
         if len(fic[i])=0:
             break
         for j de 1 à len(fic[i]):
-            if fic[i][j]<>';':
+            if fic[i][j]<>',':
                 case = case+fic[i][j]
             else:
                 line[k] = case

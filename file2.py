@@ -15,7 +15,7 @@ def readTable():
         if len(fic[i])==0:
             break
         for j in range(0,len(fic[i])):
-            if fic[i][j] != ';':
+            if fic[i][j] != ',':
                 case +=  fic[i][j]
             elif fic[i][j] == '\n':
                 continue
@@ -33,7 +33,7 @@ def updateTable(table):
             table[x][y] = str(table[x][y])
     with open(filename,'w',encoding='utf-8') as file:
         for line in table:
-            file.write(';'.join(line)+';\n')
+            file.write(','.join(line)+',\n')
 
 def searchLine(letter):
     tableau = readTable()
@@ -48,17 +48,30 @@ def getNextLetter(letter):
     for i in range(1,len(probas)):
         for _ in range(0, round(int(probas[i])*1.5)):
             liste.append(str(alphabet+"ø")[i-1])
-    return liste[random.randint(0,len(liste))]
+    if len(liste)>0:
+        return liste[random.randint(0,len(liste)-1)]
+    else:
+        return 'ø'
 
 def getWord():
     result = str()
     ch = getNextLetter('ø')
     while ch != 'ø':
-        return
+        result += ch
+        ch = getNextLetter(ch)
+    return result
 
-def addWord(word):
-    tableau = readTable()
+def getSentence(words = random.randint(5,20)):
+    result = getWord()
+    for _ in range(words):
+        result += " "+getWord()
+    return result
+
+def addWord(word,push=True,tableau=None):
+    if tableau==None:
+        tableau = readTable()
     i = j = k = 0
+    word = word.lower()
     while tableau[0][i] != word[0]:
         i += 1
     tableau[1][i] = int(tableau[1][i])+1
@@ -73,15 +86,26 @@ def addWord(word):
     while tableau[i][0] != word[len([word])-1]:
         i = i+1
     tableau[i][len(tableau[0])-1] = int(tableau[i][len(tableau[0])-1])+1
-    updateTable(tableau)
+    if push:
+        updateTable(tableau)
+    else:
+        return tableau
 
 def addText(text):
+    tableau = None
     temp = str()
+    count = 0
     for ch in text:
         if ch in alphabet:
             temp += ch
         else:
             if len(temp)>0:
-                addWord(temp)
+                tableau = addWord(temp,False,tableau)
                 temp = ""
-
+                count += 1
+    if len(temp)>0:
+            tableau = addWord(temp,False,tableau)
+            temp = ""
+            count += 1
+    updateTable(tableau)
+    print(count,"mot ajoutés !")
