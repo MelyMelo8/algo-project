@@ -4,13 +4,14 @@
 USES cwstring, crt;
 
 CONST alphabet : WideString = "abcdefghijklmnopqrstuvwxyzàâéèêëîïôùûüÿæœç-"
+CONST filename = 'letters.cvs'
 
 function readTable(): array of array
-    fic = fichier
+    fic = file(filename,'read')
     k = 0
     l = 0
     data = array[0..45]
-    for i de 1 à len(fic):
+    for i de 1 à 45:
         line = array[0..45]
         case = ""
         if len(fic[i])=0:
@@ -18,6 +19,8 @@ function readTable(): array of array
         for j de 1 à len(fic[i]):
             if fic[i][j]<>',':
                 case = case+fic[i][j]
+            elif fic[i][j] == '\n':
+                continue (* ici on fait rien *)
             else:
                 line[k] = case
                 case = ""
@@ -25,6 +28,14 @@ function readTable(): array of array
         data[l] = line
         l = l+1
     Return data
+
+function updateTable(table):
+    for x de 1 à len(table):
+        for y de 1 à len(table[x]):
+            table[x][y] = str(table[x][y])
+    fic = file(filename,'w')
+    for line in table:
+        fic.write(','.join(line)+',\n')
 
 function searchLine(letter): array
     tableau = readTable()
@@ -40,42 +51,64 @@ function getNextLetter(letter):char
     k = 0
     for i de 1 à len(probas):
         for j de 1 à Round(int(probas[i])*1.5):
-            liste[k] = alphabet[i]
+            liste[k] = str(alphabet+'ø')[i-1]
             k = k+1
-    Return liste[Random(len(liste))]
+    if len(liste)>0:
+        Return liste[Random(len(liste))]
+    else:
+        return 'ø'
 
-Procedure addWord(word):
-    tableau = readTable()
-    i,j,k = 0
-    while tableau[0][i]<>word[0]:
+Procedure addWord(word,push=True,tableau=None):
+    if tableau=None:
+        tableau = readTable()
+    i,j,k = 1
+    while tableau[1][i]<>word[1]:
         i = i+1
-    tableau[1][i] = tableau[1][i]+1
+    tableau[1][i] = int(tableau[1][i])+1
     for i de 1 à len(word)-2:
-        while tableau[j][0]<>word[i]: (* on cherche la ligne *)
+        while tableau[j][1]<>word[i]: (* on cherche la ligne *)
             j = j+1
-        while tableau[0][k]<>word[i+1]: (* puis la colonne *)
+        while tableau[1][k]<>word[i+1]: (* puis la colonne *)
             k = k+1
-        tableau[j][k] = tableau[j][k]+1
-        j,k = 0
-    i = 0
-    while tableau[i][0]<>word[len(word)]:
+        tableau[j][k] = int(tableau[j][k])+1
+        j,k = 1
+    i = 1
+    while tableau[i][1]<>word[len(word)]:
         i = i+1
-    tableau[i][len(tableau[0])-1] = tableau[i][len(tableau[0])-1]+1
+    tableau[i][len(tableau[1])] = int(tableau[i][len(tableau[1])])+1
 
 Procedure addText(text):
-    temp = ""
+    tableau = None
+    temp = ''
+    count = 0
     for ch in text:
         if ch in alphabet:
             temp = temp+ch
         else:
             if len(temp)>0:
-                addWord(temp)
-                temp = ""
+                tableau = addWord(temp,False,tableau)
+                temp = ''
+                count = count+1
+    if len(temp)>0:
+        tableau = addWord(temp,False,tableau)
+        temp = ''
+        count = count+1
+    updateTable(tableau)
+    writeln(count,' mot ajoutés !')
 
 function getWord():
-    result = ""
-    ch = getNextLetter("begin")
-    while ch<>"fin":
+    result = ''
+    ch = getNextLetter('ø')
+    while ch<>'ø':
         result = result+ch
         ch = getNextLetter(ch)
     Return result
+
+function getSentence(words=0):
+    randomize();
+    if words = 0:
+        words = random(15)+5
+    result = ''
+    for _ in range(words):
+        result = result + ' '+getWord()
+    return result
