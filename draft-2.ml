@@ -4,16 +4,17 @@
 USES cwstring, crt;
 
 CONST alphabet : WideString = "abcdefghijklmnopqrstuvwxyzàâéèêëîïôùûüÿæœç-"
-CONST filename = 'letters.cvs'
+CONST tablefilename = 'letters.cvs'
+CONST listfilename = 'nameslist.txt'
+decimal_precision = 4
 
 function readTable(): array of array
     fic = file(filename,'read')
-    k = 0
-    l = 0
+    k,l = 0
     data = array[0..45]
     for i de 1 à 45:
         line = array[0..45]
-        case = ""
+        case = ''
         if len(fic[i])=0:
             break
         for j de 1 à len(fic[i]):
@@ -23,92 +24,108 @@ function readTable(): array of array
                 continue (* ici on fait rien *)
             else:
                 line[k] = case
-                case = ""
+                case = ''
                 k = k+1
         data[l] = line
         l = l+1
     Return data
 
-function updateTable(table):
+function updateTable():
+    words = file(listfilename,'read') (* liste des mots *)
+    dic = dictionnary
     for x de 1 à len(table):
-        for y de 1 à len(table[x]):
-            table[x][y] = str(table[x][y])
-    fic = file(filename,'w')
-    for line in table:
+        if len(words[i]) = 0:
+            continue
+        dic = parseWord(words[i],dic)
+    table = readTable()
+    ref = table[0]
+    fic = file(tablefilename,'write')
+    fic.write(','.join(table[0])+'\n')
+    for i de 2 à len(table):
+        line = table[i]
+        for j de 2 à len(line):
+            if line[0] in dic.keys():
+                line[j] = str( round(dic[line[1]].count(ref[j])/len(dic[line[1]]), decimal_precision) )
+            else:
+                line[j] = '0.0'
         fic.write(','.join(line)+',\n')
 
-function searchLine(letter): array
-    tableau = readTable()
+function parseWord(word,dic): dictionnary
+    word = 'ø'+word+'ø'
+    for j de 1 à len(word)-1:
+        if word[j] in dic.keys():
+            dic[word[j]].append(word[j+1])
+        else:
+            dic[word[j]] = [word[j+1]]
+    return dic
+
+function searchLine(letter,tableau=None): array
+    if tableau = None:
+        tableau = readTable()
     for i de 1 à len(tableau):
         if tableau[i][1] = letter:
             Return tableau[i]
     Return None
 
-function getNextLetter(letter):char
+function getNextLetter(letter,tableau=None):char
     randomize();
-    probas = searchLine(letter)
-    liste = array[1..??]
-    k = 0
-    for i de 1 à len(probas):
-        for j de 1 à Round(int(probas[i])*1.5):
-            liste[k] = str(alphabet+'ø')[i-1]
-            k = k+1
-    if len(liste)>0:
-        Return liste[Random(len(liste))]
-    else:
-        return 'ø'
-
-Procedure addWord(word,push=True,tableau=None):
     if tableau=None:
         tableau = readTable()
-    i,j,k = 1
-    while tableau[1][i]<>word[1]:
+    probas = searchLine(letter,tableau)
+    inc = 0.0 (* incrément *)
+    goal = random() (* entre 0 et 1 *)
+    i = 0
+    while inc<goal:
         i = i+1
-    tableau[1][i] = int(tableau[1][i])+1
-    for i de 1 à len(word)-2:
-        while tableau[j][1]<>word[i]: (* on cherche la ligne *)
-            j = j+1
-        while tableau[1][k]<>word[i+1]: (* puis la colonne *)
-            k = k+1
-        tableau[j][k] = int(tableau[j][k])+1
-        j,k = 1
-    i = 1
-    while tableau[i][1]<>word[len(word)]:
-        i = i+1
-    tableau[i][len(tableau[1])] = int(tableau[i][len(tableau[1])])+1
+        inc = inc+float(probas[i]) (* on ajoute la proba de cette lettre à l'incrément *)
+    return tableau[0][i]
 
-Procedure addText(text):
-    tableau = None
-    temp = ''
-    count = 0
-    for ch in text:
-        if ch in alphabet:
-            temp = temp+ch
-        else:
-            if len(temp)>0:
-                tableau = addWord(temp,False,tableau)
-                temp = ''
-                count = count+1
-    if len(temp)>0:
-        tableau = addWord(temp,False,tableau)
-        temp = ''
-        count = count+1
-    updateTable(tableau)
-    writeln(count,' mot ajoutés !')
-
-function getWord():
-    result = ''
-    ch = getNextLetter('ø')
+function getWord(firstletter=None):
+    if firstletter=None:
+        word = 'ø'
+    else:
+        word = 'ø'+firstletter
+    ch = ''
     while ch<>'ø':
-        result = result+ch
-        ch = getNextLetter(ch)
-    Return result
+        ch = getNextLetter(word[-1]) (* -1 désigne le dernier caractère *)
+        word = word+ch
+    Return word[2:-1]
 
 function getSentence(words=0):
-    randomize();
     if words = 0:
         words = random(15)+5
-    result = ''
-    for _ in range(words):
-        result = result + ' '+getWord()
-    return result
+    sentence = array[1..words]
+    for i de 1 à words:
+        sentence[i] = getWord()
+    return ' '.join(sentence)
+
+function getListWords():
+    fic = file(listfilename,'read')
+    return fic.split('\n') (* liste des lignes *)
+
+funtcion addWord(word,push=True):
+    liste = getListWords()
+    word = word.lower() (* on met toutes les lettres en minuscules *)
+    if word in liste:
+        return False
+    fic = file(listfilename,'append')
+    fic.write(word)
+    if push:
+        updateTable()
+    return True
+
+Procedure addText(text):
+    word = ''
+    text = ' '+text.lower()
+    count = [0,0]
+    for i de 1 à len(texte):
+        if text[i] in alphabet:
+            word = word+text[i]
+        elif len(word)>0:
+            count[0] = count[0]+1
+            if addWord(word,False):
+                count[1] = count[1]+1
+            word = ''
+    updateTable()
+    p=round(count[1]*100/count[0])
+    writeln(c[1],' mots ajoutés sur ',c[0],' (',p,'%)')
