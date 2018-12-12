@@ -30,7 +30,7 @@ function readTable(): array of array
         l = l+1
     Return data
 
-function updateTable():
+procedure updateTable():
     words = file(listfilename,'read') (* liste des mots *)
     dic = dictionnary
     for x de 1 à len(table):
@@ -59,7 +59,7 @@ function parseWord(word,dic): dictionnary
             dic[word[j]] = [word[j+1]]
     return dic
 
-function searchLine(letter,tableau=None): array
+function searchLine(letter,tableau=None): array or None
     if tableau = None:
         tableau = readTable()
     for i de 1 à len(tableau):
@@ -80,7 +80,7 @@ function getNextLetter(letter,tableau=None):char
         inc = inc+float(probas[i]) (* on ajoute la proba de cette lettre à l'incrément *)
     return tableau[0][i]
 
-function getWord(firstletter=None):
+function getWord(firstletter=None): string
     if firstletter=None:
         word = 'ø'
     else:
@@ -91,7 +91,7 @@ function getWord(firstletter=None):
         word = word+ch
     Return word[2:-1]
 
-function getSentence(words=0):
+function getSentence(words=0): string
     if words = 0:
         words = random(15)+5
     sentence = array[1..words]
@@ -99,11 +99,11 @@ function getSentence(words=0):
         sentence[i] = getWord()
     return ' '.join(sentence)
 
-function getListWords():
+function getListWords(): array of string
     fic = file(listfilename,'read')
     return fic.split('\n') (* liste des lignes *)
 
-funtcion addWord(word,push=True):
+funtcion addWord(word,push=True): boolean (* booléen indiquant si le mot a bien été ajouté *)
     liste = getListWords()
     word = word.lower() (* on met toutes les lettres en minuscules *)
     if word in liste:
