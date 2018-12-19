@@ -8,6 +8,7 @@ unit uDict;
 // public  - - - - - - - - - - - - - - - - - - - - - - - - -
 interface
 
+CONST dictlen = 200;
 
 type dictItem = array[1..2] of string;
 
@@ -27,12 +28,14 @@ type
 
     // a list of procedure/function signatures makes
     // them useable from outside of the unit
+    (*
     function Dict.getItem(name:string):dictItem;
     procedure Dict.add(key,value:string);
     procedure Dict.print;
     procedure Dict.edit(name,newValue:string);
     procedure Dict.updateLen;
     constructor Dict.init;
+    *)
 
     // an implementation of a function/procedure
     // must not be in the interface-part
@@ -40,8 +43,6 @@ type
 
 // private - - - - - - - - - - - - - - - - - - - - - - - - -
 implementation
-VAR dictlen: integer;
-
 constructor Dict.init;
 var i:integer;item:dictItem;
 begin
@@ -112,7 +113,6 @@ end;
 // when the unit is loaded/included
 initialization
 begin
-	dictlen := 200; //max len of a dictionnary
     writeln('uDict initialized')
 end;
 
