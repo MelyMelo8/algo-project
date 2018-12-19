@@ -1,10 +1,13 @@
-Program testDict;
+unit uDict;
 
 {$mode objfpc}
 {$h+ }
+// this unit does something
 
 
-CONST dictlen = 200;
+// public  - - - - - - - - - - - - - - - - - - - - - - - - -
+interface
+
 
 type dictItem = array[1..2] of string;
 
@@ -21,6 +24,23 @@ type
         procedure edit(name,newValue:string);
         procedure updateLen;
     end;
+
+    // a list of procedure/function signatures makes
+    // them useable from outside of the unit
+    function Dict.getItem(name:string):dictItem;
+    procedure Dict.add(key,value:string);
+    procedure Dict.print;
+    procedure Dict.edit(name,newValue:string);
+    procedure Dict.updateLen;
+    constructor Dict.init;
+
+    // an implementation of a function/procedure
+    // must not be in the interface-part
+
+
+// private - - - - - - - - - - - - - - - - - - - - - - - - -
+implementation
+VAR dictlen: integer;
 
 constructor Dict.init;
 var i:integer;item:dictItem;
@@ -87,23 +107,20 @@ Begin
     len := i;
 end;
 
-Var dictionnaire: Dict;
-    i: integer;
-Begin
-  (*
-  dictionnaire.Init;
-  dictionnaire.add('hey key','valuuues');
-  dictionnaire.add('key num 2','I''m a string, u know?');
-  write(dictionnaire.len,' items dans le dictionnaire :');
-  dictionnaire.print();
 
-  dictionnaire.edit('key num 2','new valuue');
-  dictionnaire.edit('key num 4','new valuue here tooo');
-  writeln('');write('Edition du dictionnaire : (',dictionnaire.len,' items)');
-  dictionnaire.print;
+// initialization is the part executed
+// when the unit is loaded/included
+initialization
+begin
+	dictlen := 200; //max len of a dictionnary
+    writeln('uDict initialized')
+end;
 
-  writeln('');writeln('Itération des items dans une boucle for :');
-  for i:=1 to dictionnaire.len do
-    writeln(dictionnaire.items[i][1],' : ',dictionnaire.items[i][2]);
-  *)
+
+// finalization is worked off at program end
+finalization
+begin
+	// this unit says 'bye' at program halt
+	writeln('bye');
+end;
 end.
