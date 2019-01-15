@@ -228,4 +228,15 @@ begin;
 end;
 
 
+
+function getAdj(sentence:widestring):widestring;
+begin
+    words := splitStr(sentence);
+    getAdj := 'beau';
+    lastword := lowercase(lastItem(words,2));
+    if 
+end;
+
+
+
 end.
