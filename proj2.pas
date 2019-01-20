@@ -3,6 +3,20 @@ unit proj2;
 {$mode objfpc}{$H+}
 {$codepage UTF8}
 {$I-}
+(*
+Ce fichier définit les fonctions nécessaires à la deuxième question du projet, la création de mots par digramme. Certaines fonctions permet de générer une table de probabilité à partir d'une liste de mots, et d'autres sont capable de lire cette table afin de créer des mots de manière aléatoire-controlé.
+Comme dans les autres fichiers de projet, la fonction p2_main est appelée par le programme mère afin de générer un certain nombre de mots. Les variables n et s sont respectivement utilisées pour définir le nombre de mots et la longueur de ceux-ci. Il est possible d'utiliser la variable r afin de recalculer les probabilités, cette variable stockant un chemin d'accès vers une liste de mots.
+
+
+- 'p2_main' est la procédure principale, appelée par le programme mère, et affiche n mots générés d'une longueur minimale s
+- 'tableOfProba' est un type custom qui permet d'enregistrer la table de probabilités, contenant 44 lignes de type 'lineOfProbas', elles-même contenant 44 nombres entre 0 et 1. Le résultat est similaire à la structure du fichier 'letters.csv'
+- 'updateTable' et 'child_updateTable' sont deux fonctions utilisées pour lire un fichier contenant une liste de mots, et recalculer entièrement les probabilités. La table de probabilité ainsi générée est enregistrée dans le fichier 'letters.csv'
+- 'readTable' et 'readLine' permettent de lire le fichier 'letters.csv', et de recréer un objet 'tableOfProba' contenant toutes les probabilités pour chaque lettre
+- 'genLetter' peut générer une lettre aléatoirement à partir de la lettre précédente (ou de 'ø' s'il s'agit de la première lettre du mot) et de la ligne de probabilité correspondante
+- 'genWord' est la dernière fonction, qui génère un mot en utilisant la table de probabilité et les autres fonctions, en surveillant que le moins de mots possible soient de longueur inférieure à l'argument donné
+
+Author: Arthur Blaise (blaisearth@eisti.fr) - ©2018-2019
+*)
 
 
 // public  - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -134,7 +148,6 @@ begin
             probas[i] := readLine(line);
             i := i+1;
             end;
-        close(fic);
         Exit(probas);
     except on E: EInOutError do writeln('File handling error occurred. Details: ', E.Message);
     end;
@@ -145,7 +158,6 @@ function genLetter(letter:UnicodeString;probas:tableOfProba):UnicodeString;
 var p,r,s:real;i:integer;line:lineOfProbas;
 begin
 i := indexInString(alphabet,letter);
-//writeln('i:',i,' letter:',letter);
 if i<1 then Exit('ø') ;
 p := 0.0;
 s := 0.0;
@@ -154,7 +166,6 @@ line := probas[i];
 i := 0;
 for p in line do
     begin
-    //writeln(' s:',s,' r:',r,' p:',p,' i:',i);
     if s>=r then Exit(alphabet[i]);
     s := s+p;
     i := i+1;
@@ -168,13 +179,11 @@ begin
     mot := 'ø';
     minsize := minsize+3;
     final := '';
-    //writeln('word: ',mot,' lastChar:',mot[length(mot)],' minsize:',minsize);
     while (length(mot)<minsize) or (mot[length(mot)]<>'ø') do
         begin
         mot := mot + genLetter(mot[length(mot)],probas);
         if length(mot)>2 then
             if (mot[length(mot)]='ø') and (mot[length(mot)-1]='ø') then delete(mot,length(mot),1) ;
-        //writeln('word: ',mot,' lastChar:',mot[length(mot)],' minsize:',minsize)
         end;
     for i:=2 to length(mot)-1 do
         if mot[i]<>'ø' then begin
