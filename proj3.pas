@@ -3,6 +3,20 @@ unit proj3;
 {$mode objfpc}{$H+}
 {$codepage UTF8}
 {$I-}
+(*
+Ce fichier définit les fonctions nécessaires à la troisième question du projet, la création de mots par trigramme. Certaines fonctions permet de générer une table de probabilité à partir d'une liste de mots, et d'autres sont capable de lire cette table afin de créer des mots de manière aléatoire-controlé.
+Comme dans les autres fichiers de projet, la fonction p3_main est appelée par le programme mère afin de générer un certain nombre de mots. Les variables n et s sont respectivement utilisées pour définir le nombre de mots et la longueur de ceux-ci. Il est possible d'utiliser la variable r afin de recalculer les probabilités, cette variable stockant un chemin d'accès vers une liste de mots.
+
+
+- 'p3_main' est la procédure principale, appelée par le programme mère, et affiche n mots générés d'une longueur minimale s
+- 'tableOfProba' est un type custom qui permet d'enregistrer la table de probabilités, contenant 1936 lignes de type 'lineOfProbas' (44*44, chaque combinaison possible de deux lettres), elles-même contenant 44 nombres entre 0 et 1. Le résultat est similaire à la structure du fichier 'letters.csv'
+- 'updateTable' et 'child_updateTable' sont deux fonctions utilisées pour lire un fichier contenant une liste de mots, et recalculer entièrement les probabilités. La table de probabilité ainsi générée est enregistrée dans le fichier 'letters2.csv'
+- 'readTable' et 'readLine' permettent de lire le fichier 'letters2.csv', et de recréer un objet 'tableOfProba' contenant toutes les probabilités pour chaque combinaison de deux lettres
+- 'genLetter' peut générer une lettre aléatoirement à partir des deux lettres précédentes (ou de 'øø' s'il s'agit de la première lettre du mot) et de la ligne de probabilité correspondante
+- 'genWord' est la dernière fonction, qui génère un mot en utilisant la table de probabilité et les autres fonctions, en surveillant que le moins de mots possible soient de longueur inférieure à l'argument donné
+
+Author: Arthur Blaise (blaisearth@eisti.fr) - ©2018-2019
+*)
 
 
 // public  - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,20 +67,21 @@ for i:=1 to length(table) do
 end;
 
 procedure child_updateTable(var probas:tableOfProba;words:linesOfFile);
-var c,i,j:integer;
+var c,i,j,k,p:integer;
     w,w2:widestring;
 begin
     for w in words do
         begin
+        if length(w)=0 then Exit;
         w2 := 'øø'+w+'ø';
-        for c:=2 to length(w2)-1 do
-            begin
-            i := (indexInString(alphabet,w2[c-1])-1)*44 + indexInString(alphabet,w2[c]);
+        for c:=1 to length(w2)-2 do begin
+            i := indexInString(alphabet,w2[c]);
             j := indexInString(alphabet,w2[c+1]);
-            probas[i,j] := probas[i,j]+1.0;
+            p := (i-1)*44+j;
+            k := indexInString(alphabet,w2[c+2]);
+            probas[p,k] := probas[p,k]+1.0;
             end;
-        ;
-    end;
+        end;
 end;
 
 procedure updateTable(filepath:string);
@@ -89,10 +104,10 @@ begin
         begin
         sum := 0;
         for r in lprobas do
-            sum := sum+r ;
+            sum := sum+round(r) ;
         for r in lprobas do begin
             if sum<>0 then write(fic,FloatToStr(round2(r/sum,100000))+',')
-            else write(fic,'0.0,') ;
+            else write(fic,'0.0,')
             end;
         writeln(fic,'');
         end;
@@ -133,7 +148,6 @@ begin
             probas[i] := readLine(line);
             i := i+1;
             end;
-        close(fic);
         Exit(probas);
     except on E: EInOutError do writeln('File handling error occurred. Details: ', E.Message);
     end;
@@ -145,7 +159,6 @@ var p,r,s:real;i,j:integer;line:lineOfProbas;
 begin
 i := indexInString(alphabet,letter);
 j := indexInString(alphabet,letter2);
-//writeln('i:',i,' letter:',letter);
 if (i<1) or (j<1) then Exit('ø') ;
 p := 0.0;
 s := 0.0;
@@ -154,7 +167,6 @@ line := probas[(i-1)*44+j];
 i := 0;
 for p in line do
     begin
-    //writeln(' s:',s,' r:',r,' p:',p,' i:',i);
     if s>=r then Exit(alphabet[i]);
     s := s+p;
     i := i+1;
