@@ -8,7 +8,12 @@ Ce package défini plusieurs fonctions utiles pour les autres fichiers du projet
 - 'StrInArray' cherche si une chaine de caractère se trouve dans une liste de strings : renvoie un booléen indiquant la présence
 - 'RealInArray' est identique à 'StrInArray' mais pour un réel
 - 'join' renvoie une chaine de caractères composée de toutes les strings d'une liste, mises bout à bout grâce au séparateur
-- 'joinReal' est identique à 'join', mais pour des listes de réels
+- 'joinReal' et 'joinInt' sont identiques à 'join', mais pour des listes de réels ou d'entiers
+- 'round2' arrondit un réel avec un certain nombre de chiffres après la virgule. L'argument 'precision' doit être une puissance de 10
+- 'readFile' est une fonction qui lit un fichier et en renvoie les 50000 premières lignes. L'argument 'page' définit à partir de quelle ligne il faut commencer à compter
+- 'indexInString' cherche la position d'un caractère dans une chaine de charatcères. C'est équivalent au pos() natif de Pascal
+- 'splitStr' sépare une chaine de caractères en plusieurs fragments (maximum 100) en fonction d'un séparateur donné
+- 'lastItem' renvoie la dernière valeur non vide d'une liste de widestring
 
 Author: Arthur Blaise (blaisearth@eisti.fr) - ©2018-2019
 *)
@@ -25,9 +30,8 @@ Type lineOfProbas = array[1..44] of real;
 Type tableOfProba = array[1..44] of lineOfProbas;
 Type linesOfFile = array [1..50000] of widestring;
 Type tableofFile = array[1..20] of linesOfFile; //les listes pascal ne sont pas assez grande pour contenir autant de lignes
-Type listOfWords = array[1..50] of widestring;
+Type listOfWords = array[1..100] of widestring;
 
-procedure resetTable(var table:tableOfProba);
 function StrInArray(value:widestring; ArrayOfString:array of widestring): boolean;
 function RealInArray(value:real; ArrayOfReals:array of real): boolean;
 function join(liste:array of string; separator:string): string;
@@ -42,14 +46,6 @@ function lastItem(list:array of widestring;rang:integer=1):widestring;
 
 // private - - - - - - - - - - - - - - - - - - - - - - - - -
 implementation
-
-procedure resetTable(var table:tableOfProba);
-var i,j:integer;
-begin
-for i:=1 to length(table) do
-    for j:=1 to length(table[i]) do
-        table[i][j] := 0.0; ;
-end;
 
 function StrInArray(value:widestring; ArrayOfString:array of widestring) : boolean;
 var loop : widestring;
@@ -131,7 +127,7 @@ begin
             p := p+1;
             if i=length(lines) then
                 break;
-        until eof(fic);
+            until eof(fic);
         end;
     close(fic) ;
     readFile := lines ;
@@ -165,7 +161,6 @@ begin
     ground := Low(list);
     for i:=ground+rang to length(list) do
         begin
-        //writeln('i ',i,' ',list[i]);
         if (length(list[i])<1) and (i>ground) then Exit(list[i-rang]);
         end;
     Exit(list[length(list)]);
