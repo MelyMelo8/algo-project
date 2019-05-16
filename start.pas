@@ -74,8 +74,9 @@ var age:integer;pseudo:string;
 begin
     write('Indiquez votre pseudo',#10,'> ');readln(pseudo);
     write('Indiquez votre âge',#10,'> ');readln(age);
-    while (conf.min_age>age) or (age>conf.max_age) do
+    while (conf.min_age>age) or (age>conf.max_age) do begin
         write('Indiquez votre âge',#10,'> ');readln(age);
+    end;
     creerjoueur.age := age;
     creerjoueur.pseudo := pseudo;
 end;
